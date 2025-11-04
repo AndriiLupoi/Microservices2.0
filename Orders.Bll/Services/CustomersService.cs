@@ -1,26 +1,26 @@
-﻿using Common.DTO_s;
+﻿using AutoMapper;
+using Common.DTO_s;
 using Orders.Bll.Exceptions;
 using Orders.Bll.Interfaces;
-using Orders.Bll.Mappers;
 using Orders.Dal.Repo.Interfaces;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace Orders.Bll.Services
 {
     public class CustomersService : ICustomersService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public CustomersService(IUnitOfWork unitOfWork)
+        public CustomersService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<CustomersDTO>> GetAllAsync()
         {
             var customers = await _unitOfWork.Customers.GetAllAsync();
-            return customers.Select(CustomersMapper.ToDto);
+            return _mapper.Map<IEnumerable<CustomersDTO>>(customers);
         }
 
         public async Task<CustomersDTO?> GetByIdAsync(int id)
@@ -28,7 +28,8 @@ namespace Orders.Bll.Services
             var customer = await _unitOfWork.Customers.GetByIdAsync(id);
             if (customer == null)
                 throw new NotFoundException($"Customer with ID={id} not found.");
-            return CustomersMapper.ToDto(customer);
+
+            return _mapper.Map<CustomersDTO>(customer);
         }
 
         public async Task AddAsync(CustomersDTO dto)
@@ -39,7 +40,7 @@ namespace Orders.Bll.Services
                 if (await _unitOfWork.Customers.ExistsByEmailAsync(dto.Email))
                     throw new BusinessConflictException($"Customer with email '{dto.Email}' already exists.");
 
-                var entity = CustomersMapper.ToEntity(dto);
+                var entity = _mapper.Map<Domain.Entity.Customers>(dto);
                 await _unitOfWork.Customers.AddAsync(entity);
                 await _unitOfWork.CommitAsync();
             }
@@ -62,7 +63,7 @@ namespace Orders.Bll.Services
                 if (existing.Email != dto.Email && await _unitOfWork.Customers.ExistsByEmailAsync(dto.Email))
                     throw new BusinessConflictException($"Another customer with email '{dto.Email}' already exists.");
 
-                var entity = CustomersMapper.ToEntity(dto);
+                var entity = _mapper.Map<Domain.Entity.Customers>(dto);
                 await _unitOfWork.Customers.UpdateAsync(entity);
                 await _unitOfWork.CommitAsync();
             }

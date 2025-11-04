@@ -1,4 +1,4 @@
-﻿using Aspire.Hosting;
+using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -19,5 +19,7 @@ var ordersDb = builder.AddConnectionString(
 //ordersApi.WithReference(redis);
 
 ordersApi.WithReference(ordersDb);
+
+builder.AddProject<Projects.Catalog_API>("catalog-api");
 
 builder.Build().Run();

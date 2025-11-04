@@ -1,26 +1,27 @@
-﻿using Common.DTO_s;
+﻿using AutoMapper;
+using Common.DTO_s;
 using Orders.Bll.Exceptions;
 using Orders.Bll.Interfaces;
-using Orders.Bll.Mappers;
 using Orders.Dal.Repo.Interfaces;
-using System.Threading.Tasks;
-using System.Linq;
+using Orders.Domain.Entity;
 
 namespace Orders.Bll.Services
 {
     public class OrderItemsService : IOrderItemsService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public OrderItemsService(IUnitOfWork unitOfWork)
+        public OrderItemsService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<OrderItemsDTO>> GetAllAsync()
         {
             var items = await _unitOfWork.OrderItems.GetAllAsync();
-            return items.Select(OrderItemsMapper.ToDto);
+            return _mapper.Map<IEnumerable<OrderItemsDTO>>(items);
         }
 
         public async Task<OrderItemsDTO?> GetByIdAsync(int id)
@@ -28,7 +29,8 @@ namespace Orders.Bll.Services
             var item = await _unitOfWork.OrderItems.GetByIdAsync(id);
             if (item == null)
                 throw new NotFoundException($"OrderItem with ID={id} not found.");
-            return OrderItemsMapper.ToDto(item);
+
+            return _mapper.Map<OrderItemsDTO>(item);
         }
 
         public async Task AddAsync(OrderItemsDTO dto)
@@ -39,7 +41,7 @@ namespace Orders.Bll.Services
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var entity = OrderItemsMapper.ToEntity(dto);
+                var entity = _mapper.Map<OrderItems>(dto);
                 await _unitOfWork.OrderItems.AddAsync(entity);
                 await _unitOfWork.CommitAsync();
             }
@@ -59,7 +61,7 @@ namespace Orders.Bll.Services
                 if (existing == null)
                     throw new NotFoundException($"OrderItem with ID={dto.OrderId} not found.");
 
-                var entity = OrderItemsMapper.ToEntity(dto);
+                var entity = _mapper.Map<OrderItems>(dto);
                 await _unitOfWork.OrderItems.UpdateAsync(entity);
                 await _unitOfWork.CommitAsync();
             }

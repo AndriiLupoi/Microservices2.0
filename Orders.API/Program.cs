@@ -1,4 +1,5 @@
 using Orders.Bll.Interfaces;
+using Orders.Bll.Mappers;
 using Orders.Bll.Services;
 using Orders.Dal.Repo.Interfaces;
 using Orders.Dal.UOW;
@@ -11,7 +12,7 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-// Репозиторії будуть створюватися всередині UnitOfWork, тому реєструємо лише UnitOfWork
+// Репозиторії будуть створюватися всередині UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Сервіси BLL
@@ -19,6 +20,7 @@ builder.Services.AddScoped<ICustomersService, CustomersService>();
 builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IOrderItemsService, OrderItemsService>();
 builder.Services.AddScoped<IProductsService, ProductsService>();
+builder.Services.AddAutoMapper(typeof(OrdersMappingProfile));
 
 // Controllers та Swagger
 builder.Services.AddControllers();
