@@ -1,6 +1,4 @@
-﻿using Rewiews.Domain.ValueObjects;
-using MediatR;
-using Rewiews.Application.Common.Interfaces;
+﻿using Rewiews.Application.Common.Interfaces;
 
 namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.CreateTodo
 {

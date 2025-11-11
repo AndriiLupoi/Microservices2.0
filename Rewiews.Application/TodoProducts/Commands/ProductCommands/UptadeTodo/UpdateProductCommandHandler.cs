@@ -4,7 +4,7 @@ using Rewiews.Domain.ValueObjects;
 
 namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.UptadeTodo
 {
-    public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand>
+    public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, string>
     {
         private readonly IProductRepository _productRepository;
 
@@ -13,10 +13,11 @@ namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.UptadeTodo
             _productRepository = productRepository;
         }
 
-        public async Task<Unit> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
             var product = await _productRepository.GetByIdAsync(request.ProductId);
-            if (product == null) return Unit.Value;
+            if (product == null)
+                return $"Product with id {request.ProductId} not found";
 
             if (request.Name != null) product.UpdateName(request.Name);
             if (request.Description != null) product.UpdateDescription(request.Description);
@@ -24,7 +25,8 @@ namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.UptadeTodo
                 product.UpdatePrice(new Money(request.Price.Value, request.Currency));
 
             await _productRepository.UpdateAsync(product);
-            return Unit.Value;
+
+            return $"Product {product.Id} updated successfully";
         }
     }
 }

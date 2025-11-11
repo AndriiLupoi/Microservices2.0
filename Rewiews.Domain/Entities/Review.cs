@@ -3,6 +3,8 @@ namespace Rewiews.Domain.Entities;
 
 public class Review
 {
+
+    public string Id { get; private set; } = Guid.NewGuid().ToString();
     public string UserId { get; private set; } // reference на UserProfile
     public int Rating { get; private set; }
     public string Comment { get; private set; }

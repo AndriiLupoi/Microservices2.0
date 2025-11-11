@@ -1,8 +1,9 @@
-﻿using Rewiews.Application.Common.Interfaces;
+﻿using MediatR;
+using Rewiews.Application.Common.Interfaces;
 
 namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.UptadeTodo
 {
-    public class UpdateProductCommand : ICommand
+    public class UpdateProductCommand : IRequest<string>
     {
         public string ProductId { get; set; } = string.Empty;
         public string? Name { get; set; }

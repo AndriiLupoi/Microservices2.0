@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Rewiews.Domain.Interfaces
 {
-    public interface IReviewService
+    public interface IReviewRepository
     {
         Task AddReviewAsync(Product product, Review review);
 

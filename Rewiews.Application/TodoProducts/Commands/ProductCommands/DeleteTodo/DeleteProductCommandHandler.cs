@@ -3,7 +3,7 @@ using Rewiews.Domain.Interfaces;
 
 namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.DeleteTodo
 {
-    public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand>
+    public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand, string>
     {
         private readonly IProductRepository _productRepository;
 
@@ -12,10 +12,15 @@ namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.DeleteTodo
             _productRepository = productRepository;
         }
 
-        public async Task<Unit> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
+            var product = await _productRepository.GetByIdAsync(request.ProductId);
+            if (product == null)
+                return $"Product with id {request.ProductId} not found";
+
             await _productRepository.DeleteAsync(request.ProductId);
-            return Unit.Value;
+
+            return $"Product {request.ProductId} deleted successfully";
         }
     }
 }
