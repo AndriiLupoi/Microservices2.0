@@ -12,7 +12,7 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-// Репозиторії будуть створюватися всередині UnitOfWork
+// Репозиторії всередині UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Сервіси BLL
