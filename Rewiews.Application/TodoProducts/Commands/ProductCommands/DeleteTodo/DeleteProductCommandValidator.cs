@@ -13,7 +13,7 @@ namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.DeleteTodo
     {
         public DeleteProductCommandValidator(IProductRepository productRepository)
         {
-            RuleFor(x => x.ProductId)
+            RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("ProductId is required.")
 
                 .Must(IsValidObjectIdFormat).WithMessage("Invalid ProductId format.")

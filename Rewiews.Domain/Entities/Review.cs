@@ -1,14 +1,14 @@
 ﻿
+using Rewiews.Domain.Common;
+
 namespace Rewiews.Domain.Entities;
 
-public class Review
+public class Review : BaseEntity
 {
-
-    public string Id { get; private set; } = Guid.NewGuid().ToString();
-    public string UserId { get; private set; } // reference на UserProfile
-    public int Rating { get; private set; }
-    public string Comment { get; private set; }
-    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+    public required string UserId { get; set; } // reference на UserProfile
+    public int Rating { get; set; }
+    public required string Comment { get; set; }
+    public required string ProductId { get; set; }
 
     public void UpdateRating(int newRating)
     {

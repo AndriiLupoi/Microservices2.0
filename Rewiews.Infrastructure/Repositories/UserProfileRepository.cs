@@ -6,43 +6,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Rewiews.Infrastructure.Repositories
 {
-    public class UserProfileRepository : IUserProfileRepository
+    public class UserProfileRepository : MongoRepository<UserProfile>, IUserProfileRepository
     {
         private readonly MongoDbContext _context;
         private readonly IMongoCollection<UserProfile> _collection;
 
         public UserProfileRepository(MongoDbContext context)
+            : base(context.Users)
         {
             _context = context;
             _collection = _context.Users;
-        }
-
-        public async Task AddAsync(UserProfile userProfile)
-        {
-            await _collection.InsertOneAsync(userProfile);
-        }
-
-        public async Task UpdateAsync(UserProfile userProfile)
-        {
-            await _collection.ReplaceOneAsync(
-                u => u.Id == userProfile.Id,
-                userProfile,
-                new ReplaceOptions { IsUpsert = false }
-            );
-        }
-
-        public async Task DeleteAsync(string id)
-        {
-            await _collection.DeleteOneAsync(u => u.Id == id);
-        }
-
-        public async Task<UserProfile?> GetByIdAsync(string id)
-        {
-            return await _collection.Find(u => u.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task<UserProfile?> GetByUsernameAsync(string username)
@@ -50,10 +29,18 @@ namespace Rewiews.Infrastructure.Repositories
             return await _collection.Find(u => u.Username == username).FirstOrDefaultAsync();
         }
 
-        public async Task<IReadOnlyCollection<UserProfile>> ListAllAsync()
+        public async Task<bool> ExistsByUsernameAsync(string username, CancellationToken token = default)
         {
-            var users = await _collection.Find(_ => true).ToListAsync();
-            return users.AsReadOnly();
+            var filter = Builders<UserProfile>.Filter.Eq(p => p.Username, username);
+            var count = await _collection.CountDocumentsAsync(filter, cancellationToken: token);
+            return count > 0;
+        }
+
+        public async Task<bool> ExistsByEmailAsync(string email, CancellationToken token = default)
+        {
+            var filter = Builders<UserProfile>.Filter.Eq(p => p.email.Value, email);
+            var count = await _collection.CountDocumentsAsync(filter, cancellationToken: token);
+            return count > 0;
         }
     }
 }

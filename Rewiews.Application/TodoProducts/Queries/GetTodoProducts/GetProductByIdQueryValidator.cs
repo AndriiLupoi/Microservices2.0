@@ -13,16 +13,10 @@ namespace Rewiews.Application.TodoProducts.Queries.GetTodoProducts
     {
         public GetProductByIdQueryValidator(IProductRepository productRepository)
         {
-            RuleFor(x => x.ProductId)
+            RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("ProductId is required.")
 
-                .Must(IsValidObjectIdFormat).WithMessage("Invalid ProductId format.")
-
-                .MustAsync(async (id, cancellation) =>
-                {
-                    var exists = await productRepository.ExistsAsync(id, cancellation);
-                    return exists;
-                }).WithMessage("Product with the given id does not exist.");
+                .Must(IsValidObjectIdFormat).WithMessage("Invalid ProductId format.");
         }
 
 

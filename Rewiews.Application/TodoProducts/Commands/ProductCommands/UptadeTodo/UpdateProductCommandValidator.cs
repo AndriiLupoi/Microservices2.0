@@ -11,7 +11,7 @@ namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.UptadeTodo
         public UpdateProductCommandValidator(IProductRepository productRepository)
         {
             // Перевірка ProductId
-            RuleFor(x => x.ProductId)
+            RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("ProductId is required.")
                 .Must(IsValidObjectIdFormat).WithMessage("Invalid ProductId format.")
                 .MustAsync(async (id, cancellation) =>

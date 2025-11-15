@@ -6,8 +6,6 @@ namespace Rewiews.Domain.Entities;
 
 public class Product : BaseEntity
 {
-
-    public string Id { get; private set; } = Guid.NewGuid().ToString();
     public string Name { get; set; }
     public string Description { get; set; }
     public Money price { get; set; }

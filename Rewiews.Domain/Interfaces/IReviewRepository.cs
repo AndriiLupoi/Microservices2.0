@@ -7,6 +7,10 @@ namespace Rewiews.Domain.Interfaces
     public interface IReviewRepository
     {
         Task AddReviewAsync(Product product, Review review);
+        Task<Review?> GetByIdAsync(string id);
+        Task AddAsync(Review review);
+        Task UpdateAsync(Review review);
+        Task DeleteAsync(string id);
 
         // Пошук відгуків по користувачу
         Task<IReadOnlyCollection<Review>> GetReviewsByUserAsync(string userId);
@@ -16,5 +20,7 @@ namespace Rewiews.Domain.Interfaces
 
         // Підрахунок середнього рейтингу
         Task<double> GetAverageRatingAsync(Product product);
+        Task<bool> ExistsAsync(string id, CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<Review>> ListByProductAsync(string productId);
     }
 }

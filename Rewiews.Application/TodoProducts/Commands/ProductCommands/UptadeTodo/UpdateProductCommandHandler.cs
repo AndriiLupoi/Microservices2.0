@@ -1,32 +1,33 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
+using Rewiews.Application.Common.Exceptions;
 using Rewiews.Domain.Interfaces;
-using Rewiews.Domain.ValueObjects;
 
 namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.UptadeTodo
 {
     public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, string>
     {
         private readonly IProductRepository _productRepository;
+        private readonly IMapper _mapper;
 
-        public UpdateProductCommandHandler(IProductRepository productRepository)
+        public UpdateProductCommandHandler(IProductRepository productRepository, IMapper mapper)
         {
             _productRepository = productRepository;
+            _mapper = mapper;
         }
 
         public async Task<string> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
-            var product = await _productRepository.GetByIdAsync(request.ProductId);
-            if (product == null)
-                return $"Product with id {request.ProductId} not found";
+            var product = await _productRepository.GetByIdAsync(request.Id);
 
-            if (request.Name != null) product.UpdateName(request.Name);
-            if (request.Description != null) product.UpdateDescription(request.Description);
-            if (request.Price.HasValue && request.Currency != null)
-                product.UpdatePrice(new Money(request.Price.Value, request.Currency));
+            if (product == null)
+                throw new NotFoundException("Product", request.Id);
+
+            _mapper.Map(request, product);
 
             await _productRepository.UpdateAsync(product);
 
-            return $"Product {product.Id} updated successfully";
+            return $"Product '{product.Id}' updated successfully.";
         }
     }
 }

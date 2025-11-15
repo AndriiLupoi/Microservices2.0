@@ -22,14 +22,15 @@ public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest>
     {
         var requestName = typeof(TRequest).Name;
         var userId = _user.Id ?? string.Empty;
-        string? userName = string.Empty;
+        var userName = string.Empty;
+        var roles = _user.Role ?? new List<string>();
 
         if (!string.IsNullOrEmpty(userId))
         {
             userName = await _identityService.GetUserNameAsync(userId);
         }
 
-        _logger.LogInformation("CleanArchitecture Request: {Name} {@UserId} {@UserName} {@Request}",
-            requestName, userId, userName, request);
+        _logger.LogInformation("Rewiews Request: {Name} {@UserId} {@UserName} {@Request} {@Roles}",
+            requestName, userId, userName, request, roles);
     }
 }

@@ -1,45 +1,56 @@
-﻿using MongoDB.Bson.Serialization;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Serializers;
+using Rewiews.Domain.Common;
 using Rewiews.Domain.Entities;
-using Rewiews.Infrastructure.Common.Serializers;
 
-namespace Rewiews.Infrastructure
+public static class MongoDbMappings
 {
-    public static class MongoDbMappings
+    public static void RegisterClassMaps()
     {
-        public static void RegisterClassMaps()
+        // ----------------- BaseEntity -----------------
+        if (!BsonClassMap.IsClassMapRegistered(typeof(BaseEntity)))
         {
-            if (!BsonClassMap.IsClassMapRegistered(typeof(Product)))
+            BsonClassMap.RegisterClassMap<BaseEntity>(cm =>
             {
-                BsonClassMap.RegisterClassMap<Product>(cm =>
-                {
-                    cm.AutoMap();
-                    cm.MapProperty(p => p.Reviews).SetElementName("reviews");
-                    cm.MapProperty(p => p.price)
-                        .SetSerializer(new MoneySerializer());
-                    cm.SetIgnoreExtraElements(true);
-                });
-            }
+                cm.AutoMap();
+                cm.MapIdMember(c => c.Id)
+                  .SetIdGenerator(StringObjectIdGenerator.Instance)
+                  .SetSerializer(new StringSerializer(BsonType.ObjectId));
+                cm.SetIgnoreExtraElements(true);
+            });
+        }
 
-            if (!BsonClassMap.IsClassMapRegistered(typeof(Review)))
+        // ----------------- Product -----------------
+        if (!BsonClassMap.IsClassMapRegistered(typeof(Product)))
+        {
+            BsonClassMap.RegisterClassMap<Product>(cm =>
             {
-                BsonClassMap.RegisterClassMap<Review>(cm =>
-                {
-                    cm.AutoMap();
-                    cm.SetIgnoreExtraElements(true);
-                });
-            }
+                cm.AutoMap();
+                cm.MapProperty(p => p.Reviews).SetElementName("reviews");
+                cm.SetIgnoreExtraElements(true);
+            });
+        }
 
-            if (!BsonClassMap.IsClassMapRegistered(typeof(UserProfile)))
+        // ----------------- Review -----------------
+        if (!BsonClassMap.IsClassMapRegistered(typeof(Review)))
+        {
+            BsonClassMap.RegisterClassMap<Review>(cm =>
             {
-                BsonClassMap.RegisterClassMap<UserProfile>(cm =>
-                {
-                    cm.AutoMap();
-                    cm.MapProperty(u => u.email)
-                        .SetSerializer(new EmailSerializer());
-                    cm.SetIgnoreExtraElements(true);
-                });
-            }
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+        }
 
+        // ----------------- UserProfile -----------------
+        if (!BsonClassMap.IsClassMapRegistered(typeof(UserProfile)))
+        {
+            BsonClassMap.RegisterClassMap<UserProfile>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
         }
     }
 }

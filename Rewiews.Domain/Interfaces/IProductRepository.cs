@@ -17,14 +17,14 @@ namespace Rewiews.Domain.Interfaces
         Task DeleteAsync(string id);
 
         Task<bool> ExistsAsync(string id, CancellationToken cancellation);
+        Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default);
 
-        // NoSQL специфіка: пошук за критеріями
-        Task<IReadOnlyCollection<Product>> SearchByTextAsync(string searchText);
-
-        // Aggregation: приклад для MongoDB-like pipeline
-        Task<IReadOnlyCollection<TResult>> AggregateAsync<TResult>(Func<IQueryable<Product>, IQueryable<TResult>> pipeline);
-
-        // Optimistic concurrency: повертає true, якщо оновлення пройшло
-        Task<bool> UpdateWithConcurrencyCheckAsync(Product product, DateTime originalUpdatedAt);
+        Task<IReadOnlyCollection<Product>> GetProductsAsync(
+                    string? cursorId = null,
+                    int pageSize = 10,
+                    string? searchText = null,
+                    string? sortBy = null,
+                    bool sortDesc = false
+                );
     }
 }

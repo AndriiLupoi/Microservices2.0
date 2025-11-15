@@ -5,6 +5,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var ordersApi = builder.AddProject<Projects.Orders_API>("orders-api");
 var catalogApi = builder.AddProject<Projects.Catalog_API>("catalog-api");
+var reviewsApi = builder.AddProject<Projects.Rewiews_API>("rewiews-api");
 
 var ordersDb = builder.AddConnectionString(
     "OrdersDb",
@@ -14,6 +15,11 @@ var ordersDb = builder.AddConnectionString(
 var catalogDb = builder.AddConnectionString(
     "CatalogDb",
     @"Server=localhost\SQLEXPRESS;Database=CatalogDb;Trusted_Connection=True;TrustServerCertificate=True;"
+);
+
+var reviewsDb = builder.AddConnectionString(
+    "ReviewsDb",
+    @"mongodb://localhost:27017/ReviewsDb"
 );
 
 //// Redis як контейнер
@@ -26,9 +32,7 @@ var catalogDb = builder.AddConnectionString(
 
 ordersApi.WithReference(ordersDb);
 catalogApi.WithReference(catalogDb);
-
-
-builder.AddProject<Projects.Rewiews_API>("rewiews-api");
+reviewsApi.WithReference(reviewsDb);
 
 
 builder.Build().Run();

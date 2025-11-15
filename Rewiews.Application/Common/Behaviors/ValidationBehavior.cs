@@ -1,12 +1,10 @@
 ﻿using FluentValidation;
 using MediatR;
-using ValidationException = Reviews.Application.Common.Exceptions.ValidationException;
-
+using ValidationException = Rewiews.Application.Common.Exceptions.ValidationException;
 
 namespace Rewiews.Application.Common.Behaviors
 {
-    public class ValidationBehaviour<TRequest, TResponse>
-        : IPipelineBehavior<TRequest, TResponse>
+    public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
         private readonly IEnumerable<IValidator<TRequest>> _validators;
@@ -34,8 +32,10 @@ namespace Rewiews.Application.Common.Behaviors
                     .Where(f => f != null)
                     .ToList();
 
-                if (failures.Count != 0)
+                if (failures.Count > 0)
+                {
                     throw new ValidationException(failures);
+                }
             }
 
             return await next();

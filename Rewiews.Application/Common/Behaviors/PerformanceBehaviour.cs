@@ -40,14 +40,15 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
             var requestName = typeof(TRequest).Name;
             var userId = _user.Id ?? string.Empty;
             var userName = string.Empty;
+            var roles = _user.Role ?? new List<string>();
 
             if (!string.IsNullOrEmpty(userId))
             {
                 userName = await _identityService.GetUserNameAsync(userId);
             }
 
-            _logger.LogWarning("CleanArchitecture Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@UserName} {@Request}",
-                requestName, elapsedMilliseconds, userId, userName, request);
+            _logger.LogWarning("CleanArchitecture Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@UserName} {@Request} {@Roles}",
+                requestName, elapsedMilliseconds, userId, userName, request, roles);
         }
 
         return response;

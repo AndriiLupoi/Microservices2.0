@@ -1,19 +1,18 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Rewiews.Domain.Interfaces;
+using System.Text.RegularExpressions;
 
 namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.CreateTodo
 {
     public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
     {
-        public CreateProductCommandValidator()
+        public CreateProductCommandValidator(IProductRepository productRepository)
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Name is required.")
-                .MinimumLength(3).WithMessage("Name must be at least 3 characters.");
+                .MustAsync(async (name, cancellation) =>
+                    !await productRepository.ExistsByNameAsync(name, cancellation))
+                .WithMessage("Product with the same name already exists.");
 
             RuleFor(x => x.Description)
                 .NotEmpty().WithMessage("Description is required.")

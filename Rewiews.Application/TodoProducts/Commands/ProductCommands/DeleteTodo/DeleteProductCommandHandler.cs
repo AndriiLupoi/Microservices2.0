@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Rewiews.Application.Common.Exceptions;
 using Rewiews.Domain.Interfaces;
 
 namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.DeleteTodo
@@ -14,13 +15,14 @@ namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.DeleteTodo
 
         public async Task<string> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
-            var product = await _productRepository.GetByIdAsync(request.ProductId);
+            var product = await _productRepository.GetByIdAsync(request.Id);
+
             if (product == null)
-                return $"Product with id {request.ProductId} not found";
+                throw new NotFoundException("Product", request.Id);
 
-            await _productRepository.DeleteAsync(request.ProductId);
+            await _productRepository.DeleteAsync(request.Id);
 
-            return $"Product {request.ProductId} deleted successfully";
+            return $"Product '{request.Id}' deleted successfully.";
         }
     }
 }

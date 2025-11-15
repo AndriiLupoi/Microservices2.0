@@ -1,30 +1,28 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
+using Rewiews.Application.TodoProducts.Commands.ProductCommands.CreateTodo;
 using Rewiews.Domain.Entities;
 using Rewiews.Domain.Interfaces;
-using Rewiews.Domain.ValueObjects;
 
-namespace Rewiews.Application.TodoProducts.Commands.ProductCommands.CreateTodo
+public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, string>
 {
-    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, string>
+    private readonly IProductRepository _productRepository;
+    private readonly IMapper _mapper;
+
+    public CreateProductCommandHandler(
+        IProductRepository productRepository,
+        IMapper mapper)
     {
-        private readonly IProductRepository _productRepository;
+        _productRepository = productRepository;
+        _mapper = mapper;
+    }
 
-        public CreateProductCommandHandler(IProductRepository productRepository)
-        {
-            _productRepository = productRepository;
-        }
+    public async Task<string> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+    {
+        var product = _mapper.Map<Product>(request);
 
-        public async Task<string> Handle(CreateProductCommand request, CancellationToken cancellationToken)
-        {
-            Product product = new Product
-            {
-                Name = request.Name,
-                Description = request.Description,
-                price = new Money(request.Price, request.Currency)
-            };
+        await _productRepository.AddAsync(product);
 
-            await _productRepository.AddAsync(product);
-            return product.Id;
-        }
+        return product.Id!;
     }
 }

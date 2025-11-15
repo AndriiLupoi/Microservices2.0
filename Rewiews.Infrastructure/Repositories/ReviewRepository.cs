@@ -5,13 +5,14 @@ using Rewiews.Infrastructure.Context;
 
 namespace Rewiews.Infrastructure.Repositories
 {
-    public class ReviewRepository : IReviewRepository
+    public class ReviewRepository : MongoRepository<Review>, IReviewRepository
     {
         private readonly MongoDbContext _context;
         private readonly IMongoCollection<Review> _collection;
         private readonly IMongoCollection<Product> _productCollection;
 
         public ReviewRepository(MongoDbContext context)
+            : base(context.Reviews)
         {
             _context = context;
             _collection = _context.Reviews;
@@ -59,5 +60,14 @@ namespace Rewiews.Infrastructure.Repositories
             var reviews = products.SelectMany(p => p.Reviews).ToList();
             return reviews.AsReadOnly();
         }
+
+
+        public async Task<IReadOnlyCollection<Review>> ListByProductAsync(string productId)
+        {
+            var filter = Builders<Review>.Filter.Eq(r => r.ProductId, productId);
+            var reviews = await _collection.Find(filter).ToListAsync();
+            return reviews.AsReadOnly();
+        }
+
     }
 }

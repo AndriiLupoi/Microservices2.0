@@ -1,11 +1,14 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Reviews.Application.Common.Behaviors;
+using Rewiews.Application.Common;
 using Rewiews.Application.Common.Behaviors;
+using Rewiews.Application.Common.Interfaces;
 using System.Reflection;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace Rewiews.Application;
 
 public static class DependencyInjection
 {
@@ -14,6 +17,15 @@ public static class DependencyInjection
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+        builder.Services.AddScoped<IIdentityService, IdentityService>();
+
+        builder.Services.AddMemoryCache();
+
+
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<IUser, CurrentUser>();
+
 
         builder.Services.AddMediatR(cfg => {
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());

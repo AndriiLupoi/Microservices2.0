@@ -82,62 +82,62 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Catalog API v1"));
 }
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+//using (var scope = app.Services.CreateScope())
+//{
+//    var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
 
-    // Міграції
-    db.Database.Migrate();
+//    // Міграції
+//    db.Database.Migrate();
 
-    // Конфігураційний прапорець (можна вимкнути у Production)
-    var seedData = builder.Configuration.GetValue<bool>("SeedData", true);
-    if (seedData)
-    {
-        // --- Бренди ---
-        if (!db.Brands.Any())
-        {
-            db.Brands.AddRange(
-                new Brand {Name = "Bosch" },
-                new Brand {Name = "Valeo" },
-                new Brand {Name = "NGK" }
-            );
-            db.SaveChanges();
-        }
+//    // Конфігураційний прапорець (можна вимкнути у Production)
+//    var seedData = builder.Configuration.GetValue<bool>("SeedData", true);
+//    if (seedData)
+//    {
+//        // --- Бренди ---
+//        if (!db.Brands.Any())
+//        {
+//            db.Brands.AddRange(
+//                new Brand {Name = "Bosch" },
+//                new Brand {Name = "Valeo" },
+//                new Brand {Name = "NGK" }
+//            );
+//            db.SaveChanges();
+//        }
 
-        // --- Категорії ---
-        if (!db.Categories.Any())
-        {
-            db.Categories.AddRange(
-                new Category {Name = "Свічки запалювання" },
-                new Category {Name = "Фільтри" },
-                new Category {Name = "Гальмівні колодки" }
-            );
-            db.SaveChanges();
-        }
+//        // --- Категорії ---
+//        if (!db.Categories.Any())
+//        {
+//            db.Categories.AddRange(
+//                new Category {Name = "Свічки запалювання" },
+//                new Category {Name = "Фільтри" },
+//                new Category {Name = "Гальмівні колодки" }
+//            );
+//            db.SaveChanges();
+//        }
 
-        // --- Продукти ---
-        if (!db.Products.Any())
-        {
-            db.Products.AddRange(
-                new Product {Name = "Свічка Bosch Super", SKU = "BOSCH-SPARK-001", Price = 150, BrandId = 1 },
-                new Product {Name = "Фільтр повітря Valeo", SKU = "VALEO-AIR-001", Price = 200, BrandId = 2 },
-                new Product {Name = "Колодки гальмівні NGK", SKU = "NGK-BRAKE-001", Price = 400, BrandId = 3 }
-            );
-            db.SaveChanges();
-        }
+//        // --- Продукти ---
+//        if (!db.Products.Any())
+//        {
+//            db.Products.AddRange(
+//                new Product {Name = "Свічка Bosch Super", SKU = "BOSCH-SPARK-001", Price = 150, BrandId = 1 },
+//                new Product {Name = "Фільтр повітря Valeo", SKU = "VALEO-AIR-001", Price = 200, BrandId = 2 },
+//                new Product {Name = "Колодки гальмівні NGK", SKU = "NGK-BRAKE-001", Price = 400, BrandId = 3 }
+//            );
+//            db.SaveChanges();
+//        }
 
-        // --- ProductCategory (зв'язки продуктів і категорій) ---
-        if (!db.ProductCategories.Any())
-        {
-            db.ProductCategories.AddRange(
-                new ProductCategory { Id = 1, ProductId = 1, CategoryId = 1 }, // Свічки Bosch → Свічки запалювання
-                new ProductCategory { Id = 2, ProductId = 2, CategoryId = 2 }, // Фільтр Valeo → Фільтри
-                new ProductCategory { Id = 3, ProductId = 3, CategoryId = 3 }  // Колодки NGK → Гальмівні колодки
-            );
-            db.SaveChanges();
-        }
-    }
-}
+//        // --- ProductCategory (зв'язки продуктів і категорій) ---
+//        if (!db.ProductCategories.Any())
+//        {
+//            db.ProductCategories.AddRange(
+//                new ProductCategory { Id = 1, ProductId = 1, CategoryId = 1 }, // Свічки Bosch → Свічки запалювання
+//                new ProductCategory { Id = 2, ProductId = 2, CategoryId = 2 }, // Фільтр Valeo → Фільтри
+//                new ProductCategory { Id = 3, ProductId = 3, CategoryId = 3 }  // Колодки NGK → Гальмівні колодки
+//            );
+//            db.SaveChanges();
+//        }
+//    }
+//}
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

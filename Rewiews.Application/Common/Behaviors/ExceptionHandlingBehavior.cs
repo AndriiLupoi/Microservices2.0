@@ -1,40 +1,49 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using Reviews.Application.Common.Exceptions;
+using Rewiews.Application.Common.Exceptions;
 
-namespace Reviews.Application.Common.Behaviors;
-
-public class ExceptionHandlingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+namespace Reviews.Application.Common.Behaviors
 {
-    private readonly ILogger<ExceptionHandlingBehavior<TRequest, TResponse>> _logger;
-
-    public ExceptionHandlingBehavior(ILogger<ExceptionHandlingBehavior<TRequest, TResponse>> logger)
+    public class ExceptionHandlingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
     {
-        _logger = logger;
-    }
+        private readonly ILogger<ExceptionHandlingBehavior<TRequest, TResponse>> _logger;
 
-    public async Task<TResponse> Handle(
-        TRequest request,
-        RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken)
-    {
-        try
+        public ExceptionHandlingBehavior(ILogger<ExceptionHandlingBehavior<TRequest, TResponse>> logger)
         {
-            return await next();
+            _logger = logger;
         }
-        catch (ValidationException ex)
+
+        public async Task<TResponse> Handle(
+            TRequest request,
+            RequestHandlerDelegate<TResponse> next,
+            CancellationToken cancellationToken)
         {
-            var requestName = typeof(TRequest).Name;
-            _logger.LogWarning("⚠️ Validation failed for {RequestName}. Errors: {@Errors}", requestName, ex.Errors);
-            throw;
-        }
-        catch (Exception ex)
-        {
-            // 🔹 Усі інші помилки
-            var requestName = typeof(TRequest).Name;
-            _logger.LogError(ex, "❌ Unhandled exception for request {RequestName}", requestName);
-            throw;
+            try
+            {
+                return await next();
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning("⚠️ Validation failed for {RequestName}. Errors: {@Errors}", typeof(TRequest).Name, ex.Errors);
+                throw;
+            }
+            catch (NotFoundException ex)
+            {
+                _logger.LogWarning("⚠️ Not found exception for {RequestName}. Message: {Message}", typeof(TRequest).Name, ex.Message);
+                throw;
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "❌ Unhandled exception for {RequestName}. Request data: {@Request}",
+                    typeof(TRequest).Name,
+                    request
+                );
+                throw;
+            }
         }
     }
 }
