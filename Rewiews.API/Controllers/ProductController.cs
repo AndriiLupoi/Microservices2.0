@@ -8,7 +8,7 @@ using Rewiews.Application.TodoProducts.Queries.GetTodoProducts;
 
 namespace Rewiews.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/products")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -19,36 +19,56 @@ namespace Rewiews.API.Controllers
             _mediator = mediator;
         }
 
-        // GET: api/Product
+        // GET: api/products
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<object>), 200)]
         public async Task<IActionResult> GetAll()
         {
             var result = await _mediator.Send(new GetProductsListQuery());
             return Ok(result);
         }
 
-        // GET: api/Product/{id}
+        // GET: api/products/{id}
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(object), 200)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetById(string id)
         {
             var product = await _mediator.Send(new GetProductByIdQuery(id));
             if (product == null)
-                throw new NotFoundException("Product", id);
+                return NotFound(new { message = $"Product '{id}' not found." });
 
             return Ok(product);
-
         }
 
-        // POST: api/Product
+        // POST: api/products
         [HttpPost]
-        public async Task<IActionResult> Create(CreateProductCommand command)
+        [ProducesResponseType(201)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(422)]
+        public async Task<IActionResult> Create([FromBody] CreateProductCommand command)
         {
-            var id = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetById), new { id }, new { id });
+            try
+            {
+                var id = await _mediator.Send(command);
+                return CreatedAtAction(nameof(GetById), new { id }, new { id });
+            }
+            catch (ConflictException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (ValidationException ex)
+            {
+                return UnprocessableEntity(new { message = ex.Message });
+            }
         }
 
-        // PUT: api/Product/{id}
+        // PUT: api/products/{id}
         [HttpPut("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(422)]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateProductCommand command)
         {
             command.Id = id;
@@ -59,22 +79,24 @@ namespace Rewiews.API.Controllers
             var result = await _mediator.Send(command);
 
             if (result.Contains("not found", StringComparison.OrdinalIgnoreCase))
-                throw new NotFoundException("Product", id);
+                return NotFound(new { message = $"Product '{id}' not found." });
 
             if (result.Contains("conflict", StringComparison.OrdinalIgnoreCase))
-                throw new ConflictException($"Version conflict while updating product '{id}'.");
+                return Conflict(new { message = $"Version conflict while updating product '{id}'." });
 
             return Ok(result);
         }
 
-        // DELETE: api/Product/{id}
+        // DELETE: api/products/{id}
         [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> Delete(string id)
         {
             var result = await _mediator.Send(new DeleteProductCommand { Id = id });
 
             if (result.Contains("not found", StringComparison.OrdinalIgnoreCase))
-                throw new NotFoundException("Product", id);
+                return NotFound(new { message = $"Product '{id}' not found." });
 
             return NoContent();
         }

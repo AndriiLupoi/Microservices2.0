@@ -13,10 +13,11 @@ namespace Rewiews.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("MongoDb");
-            var databaseName = configuration["DatabaseName"];
-
-            services.AddSingleton(new MongoDbContext(connectionString!, databaseName!));
+            services.AddSingleton<MongoDbContext>(sp =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();
+                return new MongoDbContext(config);
+            });
 
             MongoDbMappings.RegisterClassMaps();
 

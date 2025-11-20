@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Catalog.Bll\Catalog.Bll.csproj" />
+    <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>

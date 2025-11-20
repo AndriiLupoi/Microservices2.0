@@ -36,7 +36,7 @@ namespace Catalog.Bll.Services
             return _mapper.Map<BrandDto>(brand);
         }
 
-        public async Task AddBrandAsync(BrandDto brandDto)
+        public async Task AddBrandAsync(BrandCreateDto brandDto)
         {
             var exists = await _uow.Brands.Query()
                 .AnyAsync(b => b.Name == brandDto.Name);

@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Rewiews.Application.Common.Exceptions;
 using Rewiews.Application.TodoReviews.Commands.ReviewsCommands.CreateReviews;
 using Rewiews.Application.TodoReviews.Commands.ReviewsCommands.DeleteReviews;
 using Rewiews.Application.TodoReviews.Commands.ReviewsCommands.UptadeReviews;
@@ -21,42 +20,46 @@ namespace Rewiews.API.Controllers
 
         // GET: api/reviews?productId={productId}
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<object>), 200)]
         public async Task<IActionResult> GetReviews([FromQuery] string productId)
         {
-            var query = new GetReviewsListQuery { ProductId = productId };
-            var result = await _mediator.Send(query);
+            var result = await _mediator.Send(new GetReviewsListQuery { ProductId = productId });
             return Ok(result);
         }
 
-        // GET: api/reviews/{reviewId}
-        [HttpGet("{reviewId}")]
-        public async Task<IActionResult> GetReviewById(string reviewId)
+        // GET: api/reviews/{id}
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(object), 200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetById(string id)
         {
-            var query = new GetReviewByIdQuery(reviewId);
-            var result = await _mediator.Send(query);
+            var review = await _mediator.Send(new GetReviewByIdQuery(id));
+            if (review == null)
+                return NotFound(new { message = $"Review '{id}' not found." });
 
-            if (result == null)
-                throw new NotFoundException("Review", reviewId);
-
-            return Ok(result);
+            return Ok(review);
         }
 
         // POST: api/reviews
         [HttpPost]
-        public async Task<IActionResult> AddReview([FromBody] CreateReviewCommand command)
+        [ProducesResponseType(201)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(422)]
+        public async Task<IActionResult> Create([FromBody] CreateReviewCommand command)
         {
-            var reviewId = await _mediator.Send(command);
-
-            return Created($"/api/reviews/{reviewId}", new { reviewId });
+            var id = await _mediator.Send(command);
+            return CreatedAtAction(nameof(GetById), new { id }, new { id });
         }
 
-        // PUT: api/reviews/{reviewId}
-        [HttpPut("{reviewId}")]
-        public async Task<IActionResult> UpdateReview(
-            string reviewId,
-            [FromBody] UpdateReviewCommand command)
+        // PUT: api/reviews/{id}
+        [HttpPut("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(422)]
+        public async Task<IActionResult> Update(string id, [FromBody] UpdateReviewCommand command)
         {
-            command.Id = reviewId;
+            command.Id = id;
 
             if (Request.Headers.TryGetValue("If-Match", out var etag))
                 command.Version = int.Parse(etag);
@@ -65,13 +68,13 @@ namespace Rewiews.API.Controllers
             return Ok(result);
         }
 
-        // DELETE: api/reviews/{reviewId}
-        [HttpDelete("{reviewId}")]
-        public async Task<IActionResult> DeleteReview(string reviewId)
+        // DELETE: api/reviews/{id}
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> Delete(string id)
         {
-            var command = new DeleteReviewCommand { Id = reviewId };
-            await _mediator.Send(command);
-
+            await _mediator.Send(new DeleteReviewCommand { Id = id });
             return NoContent();
         }
     }

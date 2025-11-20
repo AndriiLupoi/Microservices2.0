@@ -12,7 +12,7 @@ namespace Catalog.Bll.Interfaces
     {
         Task<IEnumerable<BrandDto>> GetAllBrandsAsync();
         Task<BrandDto> GetBrandByIdAsync(int id);
-        Task AddBrandAsync(BrandDto brandDto);
+        Task AddBrandAsync(BrandCreateDto brandDto);
         Task UpdateBrandAsync(BrandDto brandDto);
         Task DeleteBrandAsync(int id);
 

@@ -3,14 +3,12 @@ using Orders.Bll.Mappers;
 using Orders.Bll.Services;
 using Orders.Dal.Repo.Interfaces;
 using Orders.Dal.UOW;
-using Serilog;
+using ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Конфігурація
-builder.Configuration
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddEnvironmentVariables();
+// Додати ServiceDefaults на початку
+builder.AddServiceDefaults();
 
 // Репозиторії всередині UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -20,6 +18,7 @@ builder.Services.AddScoped<ICustomersService, CustomersService>();
 builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IOrderItemsService, OrderItemsService>();
 builder.Services.AddScoped<IProductsService, ProductsService>();
+
 builder.Services.AddAutoMapper(typeof(OrdersMappingProfile));
 
 // Controllers та Swagger
@@ -32,18 +31,11 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(xmlPath);
 });
 
-// Serilog
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
-builder.Host.UseSerilog();
 
 var app = builder.Build();
+
+// Додати UseServiceDefaults після Build()
+app.UseServiceDefaults();
 
 // Swagger тільки для Development
 if (app.Environment.IsDevelopment())

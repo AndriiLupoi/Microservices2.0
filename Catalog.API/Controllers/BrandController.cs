@@ -10,7 +10,7 @@ namespace Catalog.Api.Controllers
     /// <remarks>
     /// Містить CRUD-операції для створення, перегляду, оновлення та видалення брендів.
     /// </remarks>
-    [Route("api/[controller]")]
+    [Route("api/brands")]
     [ApiController]
     public class BrandController : ControllerBase
     {
@@ -61,12 +61,12 @@ namespace Catalog.Api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(BrandDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> Create([FromBody] BrandDto brandDto)
+        public async Task<IActionResult> Create([FromBody] BrandCreateDto brandDto)
         {
             try
             {
                 await _brandService.AddBrandAsync(brandDto);
-                return CreatedAtAction(nameof(GetById), new { id = brandDto.BrandId }, brandDto);
+                return CreatedAtAction(nameof(GetById), new { id = brandDto.Name }, brandDto);
             }
             catch (Exception ex)
             {

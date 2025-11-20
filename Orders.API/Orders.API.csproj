@@ -19,6 +19,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Orders.Bll\Orders.Bll.csproj" />
+    <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
   </ItemGroup>
+
+	<ItemGroup>
+		<Content Include="db_orders\OrdersDBQuery.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
 
 </Project>

@@ -2,6 +2,7 @@
 using Catalog.Bll.Exceptions;
 using Catalog.Bll.Interfaces;
 using Catalog.Common.DTO;
+using Catalog.Common.DTO.ProductCategoryDto_s;
 using Catalog.Common.Pagination;
 using Catalog.Dal.Repo.UOW;
 using Catalog.Dal.Specifications;
@@ -38,7 +39,7 @@ namespace Catalog.Bll.Services
             return _mapper.Map<ProductCategoryDto>(productCategory);
         }
 
-        public async Task AddProductCategoryAsync(ProductCategoryDto productCategoryDto)
+        public async Task AddProductCategoryAsync(ProductCategoryCreateDto productCategoryDto)
         {
             var product = await _uow.Products.GetByIdAsync(productCategoryDto.ProductId);
             if (product == null)

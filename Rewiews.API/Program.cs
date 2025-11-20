@@ -6,13 +6,15 @@ using Rewiews.Api.Middlewares;
 using Rewiews.Application;
 using Rewiews.Infrastructure;
 using Rewiews.Infrastructure.Context;
-
+using ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔹 Контролери + Swagger
+builder.AddServiceDefaults();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -22,16 +24,13 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHealthChecks()
     .AddCheck<MongoDbHealthCheck>("mongodb");
 
-
-//шари
 // 🔹 Application & Infrastructure DI
 builder.AddApplicationServices(); // Application: MediatR, AutoMapper, FluentValidation, Behaviors
 builder.Services.AddInfrastructure(builder.Configuration); // Infrastructure: Repos, MongoDB, IdGenerator
 
-
-
-
 var app = builder.Build();
+
+app.UseServiceDefaults();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -50,11 +49,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
-
 app.UseRouting();
 app.UseAuthorization();
-
 app.MapHealthChecks("/health");
-
 app.MapControllers();
 app.Run();

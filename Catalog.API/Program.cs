@@ -9,29 +9,13 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Serilog;
-using Serilog.Events;
+using ServiceDefaults;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information() // логуватимуться тільки Information, Warning, Error
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning) // мінімізує зайві логи від Microsoft/EFCore
-    .MinimumLevel.Override("System", LogEventLevel.Warning)
-    .Enrich.FromLogContext()
-    .WriteTo.Console(
-        outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-    .WriteTo.File(
-        path: "Logs/log.txt",
-        rollingInterval: RollingInterval.Day,
-        outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-    .CreateLogger();
-
-builder.Host.UseSerilog();
-
-builder.Host.UseSerilog();
+builder.AddServiceDefaults();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -69,10 +53,16 @@ builder.Services.AddSwaggerGen(c =>
 
 
 builder.Services.AddDbContext<CatalogDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CatalogDb"))
-);
+{
+    var connectionString = builder.Configuration.GetConnectionString("CatalogDb")
+        ?? throw new InvalidOperationException("Connection string 'CatalogDb' not found. Make sure it's configured in appsettings.json or environment variables.");
+
+    options.UseSqlServer(connectionString);
+});
 
 var app = builder.Build();
+
+app.UseServiceDefaults();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -82,62 +72,62 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Catalog API v1"));
 }
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
 
-//    // Міграції
-//    db.Database.Migrate();
+    // Міграції
+    db.Database.Migrate();
 
-//    // Конфігураційний прапорець (можна вимкнути у Production)
-//    var seedData = builder.Configuration.GetValue<bool>("SeedData", true);
-//    if (seedData)
-//    {
-//        // --- Бренди ---
-//        if (!db.Brands.Any())
-//        {
-//            db.Brands.AddRange(
-//                new Brand {Name = "Bosch" },
-//                new Brand {Name = "Valeo" },
-//                new Brand {Name = "NGK" }
-//            );
-//            db.SaveChanges();
-//        }
+    // Конфігураційний прапорець (можна вимкнути у Production)
+    var seedData = builder.Configuration.GetValue<bool>("SeedData", true);
+    if (seedData)
+    {
+        // --- Бренди ---
+        if (!db.Brands.Any())
+        {
+            db.Brands.AddRange(
+                new Brand { Name = "Bosch" },
+                new Brand { Name = "Valeo" },
+                new Brand { Name = "NGK" }
+            );
+            db.SaveChanges();
+        }
 
-//        // --- Категорії ---
-//        if (!db.Categories.Any())
-//        {
-//            db.Categories.AddRange(
-//                new Category {Name = "Свічки запалювання" },
-//                new Category {Name = "Фільтри" },
-//                new Category {Name = "Гальмівні колодки" }
-//            );
-//            db.SaveChanges();
-//        }
+        // --- Категорії ---
+        if (!db.Categories.Any())
+        {
+            db.Categories.AddRange(
+                new Category { Name = "Свічки запалювання" },
+                new Category { Name = "Фільтри" },
+                new Category { Name = "Гальмівні колодки" }
+            );
+            db.SaveChanges();
+        }
 
-//        // --- Продукти ---
-//        if (!db.Products.Any())
-//        {
-//            db.Products.AddRange(
-//                new Product {Name = "Свічка Bosch Super", SKU = "BOSCH-SPARK-001", Price = 150, BrandId = 1 },
-//                new Product {Name = "Фільтр повітря Valeo", SKU = "VALEO-AIR-001", Price = 200, BrandId = 2 },
-//                new Product {Name = "Колодки гальмівні NGK", SKU = "NGK-BRAKE-001", Price = 400, BrandId = 3 }
-//            );
-//            db.SaveChanges();
-//        }
+        // --- Продукти ---
+        if (!db.Products.Any())
+        {
+            db.Products.AddRange(
+                new Product { Name = "Свічка Bosch Super", SKU = "BOSCH-SPARK-001", Price = 150, BrandId = 1 },
+                new Product { Name = "Фільтр повітря Valeo", SKU = "VALEO-AIR-001", Price = 200, BrandId = 2 },
+                new Product { Name = "Колодки гальмівні NGK", SKU = "NGK-BRAKE-001", Price = 400, BrandId = 3 }
+            );
+            db.SaveChanges();
+        }
 
-//        // --- ProductCategory (зв'язки продуктів і категорій) ---
-//        if (!db.ProductCategories.Any())
-//        {
-//            db.ProductCategories.AddRange(
-//                new ProductCategory { Id = 1, ProductId = 1, CategoryId = 1 }, // Свічки Bosch → Свічки запалювання
-//                new ProductCategory { Id = 2, ProductId = 2, CategoryId = 2 }, // Фільтр Valeo → Фільтри
-//                new ProductCategory { Id = 3, ProductId = 3, CategoryId = 3 }  // Колодки NGK → Гальмівні колодки
-//            );
-//            db.SaveChanges();
-//        }
-//    }
-//}
+        // --- ProductCategory (зв'язки продуктів і категорій) ---
+        if (!db.ProductCategories.Any())
+        {
+            db.ProductCategories.AddRange(
+                new ProductCategory { Id = 1, ProductId = 1, CategoryId = 1 }, // Свічки Bosch → Свічки запалювання
+                new ProductCategory { Id = 2, ProductId = 2, CategoryId = 2 }, // Фільтр Valeo → Фільтри
+                new ProductCategory { Id = 3, ProductId = 3, CategoryId = 3 }  // Колодки NGK → Гальмівні колодки
+            );
+            db.SaveChanges();
+        }
+    }
+}
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

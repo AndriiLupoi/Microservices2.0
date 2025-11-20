@@ -1,4 +1,5 @@
 ﻿using Catalog.Common.DTO;
+using Catalog.Common.DTO.CategoryDto_s;
 using Catalog.Common.Pagination;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Catalog.Bll.Interfaces
     {
         Task<IEnumerable<CategoryDto>> GetAllCategorysAsync();
         Task<CategoryDto> GetCategoryByIdAsync(int id);
-        Task AddCategoryAsync(CategoryDto categoryDto);
+        Task AddCategoryAsync(CategoryCreateDto categoryDto);
         Task UpdateCategoryAsync(CategoryDto categoryDto);
         Task DeleteCategoryAsync(int id);
 

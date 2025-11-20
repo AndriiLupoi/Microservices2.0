@@ -1,5 +1,6 @@
 ﻿using Catalog.Bll.Interfaces;
 using Catalog.Common.DTO;
+using Catalog.Common.DTO.CategoryDto_s;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.Api.Controllers
@@ -7,7 +8,7 @@ namespace Catalog.Api.Controllers
     /// <summary>
     /// Контролер для керування категоріями товарів.
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/categories")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -42,12 +43,12 @@ namespace Catalog.Api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(CategoryDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> Create([FromBody] CategoryDto categoryDto)
+        public async Task<IActionResult> Create([FromBody] CategoryCreateDto categoryDto)
         {
             try
             {
                 await _categoryService.AddCategoryAsync(categoryDto);
-                return CreatedAtAction(nameof(GetById), new { id = categoryDto.CategoryId }, categoryDto);
+                return CreatedAtAction(nameof(GetById), new { id = categoryDto.Name }, categoryDto);
             }
             catch (Exception ex)
             {

@@ -1,11 +1,12 @@
 ﻿using Catalog.Bll.Interfaces;
 using Catalog.Common.DTO;
+using Catalog.Common.DTO.ProductDto_s;
 using Catalog.Common.Pagination;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/products")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -46,12 +47,12 @@ namespace Catalog.Api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ProductDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> Create([FromBody] ProductDto productDto)
+        public async Task<IActionResult> Create([FromBody] ProductCreateDto productDto)
         {
             try
             {
                 await _productService.AddProductAsync(productDto);
-                return CreatedAtAction(nameof(GetById), new { id = productDto.ProductId }, productDto);
+                return CreatedAtAction(nameof(GetById), new { id = productDto.Name }, productDto);
             }
             catch (Exception ex)
             {

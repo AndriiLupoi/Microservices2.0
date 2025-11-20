@@ -2,6 +2,7 @@
 using Catalog.Bll.Exceptions;
 using Catalog.Bll.Interfaces;
 using Catalog.Common.DTO;
+using Catalog.Common.DTO.CategoryDto_s;
 using Catalog.Common.Pagination;
 using Catalog.Dal.Repo.UOW;
 using Catalog.Dal.Specifications;
@@ -38,7 +39,7 @@ namespace Catalog.Bll.Services
             return _mapper.Map<CategoryDto>(category);
         }
 
-        public async Task AddCategoryAsync(CategoryDto categoryDto)
+        public async Task AddCategoryAsync(CategoryCreateDto categoryDto)
         {
             var exists = await _uow.Categories.Query()
                 .AnyAsync(c => c.Name == categoryDto.Name);

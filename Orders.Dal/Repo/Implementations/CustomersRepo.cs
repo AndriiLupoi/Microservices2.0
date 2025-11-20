@@ -22,7 +22,7 @@ public class CustomersRepo : ICustomersRepo
         var customers = new List<Customers>();
 
         using var cmd = _connection.CreateCommand();
-        cmd.CommandText = "SELECT Id, Name, Email FROM Customers";
+        cmd.CommandText = "SELECT Id, Name, Email FROM dbo.Customers";
         cmd.Transaction = _transaction;
 
         using var reader = await cmd.ExecuteReaderAsync();

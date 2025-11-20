@@ -2,6 +2,7 @@
 using Catalog.Bll.Exceptions;
 using Catalog.Bll.Interfaces;
 using Catalog.Common.DTO;
+using Catalog.Common.DTO.ProductDto_s;
 using Catalog.Common.Pagination;
 using Catalog.Dal.Repo.UOW;
 using Catalog.Dal.Specifications;
@@ -36,7 +37,7 @@ namespace Catalog.Bll.Services
             return _mapper.Map<ProductDto>(product);
         }
 
-        public async Task AddProductAsync(ProductDto productDto)
+        public async Task AddProductAsync(ProductCreateDto productDto)
         {
             var existing = await _uow.Products.Query()
                 .FirstOrDefaultAsync(p => p.SKU == productDto.SKU);

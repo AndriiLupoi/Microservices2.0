@@ -1,5 +1,6 @@
 ﻿using Catalog.Bll.Interfaces;
 using Catalog.Common.DTO;
+using Catalog.Common.DTO.ProductCategoryDto_s;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.Api.Controllers
@@ -7,7 +8,7 @@ namespace Catalog.Api.Controllers
     /// <summary>
     /// Контролер для керування зв'язками продуктів та категорій.
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/product-categories")]
     [ApiController]
     public class ProductCategoryController : ControllerBase
     {
@@ -42,7 +43,7 @@ namespace Catalog.Api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ProductCategoryDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> Create([FromBody] ProductCategoryDto dto)
+        public async Task<IActionResult> Create([FromBody] ProductCategoryCreateDto dto)
         {
             try
             {

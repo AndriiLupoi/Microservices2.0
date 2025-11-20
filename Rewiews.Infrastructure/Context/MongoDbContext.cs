@@ -1,7 +1,8 @@
-﻿using MongoDB.Driver;
+﻿using Microsoft.Extensions.Configuration;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 using Rewiews.Domain.Entities;
 using Rewiews.Domain.ValueObjects;
-using MongoDB.Bson.Serialization;
 
 namespace Rewiews.Infrastructure.Context
 {
@@ -10,8 +11,13 @@ namespace Rewiews.Infrastructure.Context
         private readonly IMongoDatabase _database;
         private readonly MongoClient _client;
 
-        public MongoDbContext(string connectionString, string databaseName)
+        public MongoDbContext(IConfiguration configuration)
         {
+            var connectionString = configuration.GetConnectionString("MongoDb")
+                ?? throw new InvalidOperationException("Connection string 'MongoDb' not found.");
+
+            var databaseName = configuration["MongoDB:DatabaseName"] ?? "ReviewsDb";
+
             _client = new MongoClient(connectionString);
             _database = _client.GetDatabase(databaseName);
 

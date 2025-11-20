@@ -1,4 +1,5 @@
 ﻿using Catalog.Common.DTO;
+using Catalog.Common.DTO.ProductDto_s;
 using Catalog.Common.Pagination;
 
 namespace Catalog.Bll.Interfaces
@@ -7,7 +8,7 @@ namespace Catalog.Bll.Interfaces
     {
         Task<IEnumerable<ProductDto>> GetAllProductsAsync();
         Task<ProductDto> GetProductByIdAsync(int id);
-        Task AddProductAsync(ProductDto productDto);
+        Task AddProductAsync(ProductCreateDto productDto);
         Task UpdateProductAsync(int id, ProductDto productDto);
         Task DeleteProductAsync(int id);
         Task<IEnumerable<ProductDto>> GetProductsByBrandIdAsync(int brandId);

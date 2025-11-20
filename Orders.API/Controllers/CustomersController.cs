@@ -8,7 +8,7 @@ namespace Orders.Api.Controllers
     /// <summary>
     /// Controller for managing customers.
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/customers")]
     [ApiController]
     public class CustomersController : ControllerBase
     {

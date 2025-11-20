@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Rewiews.Application\Rewiews.Application.csproj" />
     <ProjectReference Include="..\Rewiews.Infrastructure\Rewiews.Infrastructure.csproj" />
+    <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>
