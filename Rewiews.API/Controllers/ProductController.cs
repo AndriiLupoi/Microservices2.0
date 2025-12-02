@@ -100,5 +100,17 @@ namespace Rewiews.API.Controllers
 
             return NoContent();
         }
+
+        // Отримати продукт по Name
+        [HttpGet("name/{name}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetProductIdByNameAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var result = await _mediator.Send(new GetProductByNameQuery(name), cancellationToken);
+            if (result == null)
+                return NotFound(new { message = $"Product with name '{name}' not found." });
+            return Ok(result);
+        }
     }
 }

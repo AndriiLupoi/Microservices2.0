@@ -67,4 +67,13 @@ public class OrderItemsRepo : IOrderItemsRepo
         const string sql = "DELETE FROM OrderItems WHERE Id=@Id";
         return await _connection.ExecuteAsync(sql, new { Id = id }, _transaction);
     }
+
+    public async Task<IEnumerable<OrderItems>> GetByOrderIdAsync(int orderId)
+    {
+        if (_connection == null) return null;
+        await EnsureOpenConnectionAsync();
+
+        const string sql = "SELECT * FROM OrderItems WHERE OrderId=@OrderId";
+        return await _connection.QueryAsync<OrderItems>(sql, new { OrderId = orderId }, _transaction);
+    }
 }

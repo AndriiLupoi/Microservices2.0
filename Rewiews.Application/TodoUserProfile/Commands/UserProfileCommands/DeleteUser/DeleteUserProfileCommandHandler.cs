@@ -1,33 +1,36 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Logging;
 using Rewiews.Application.Common.Exceptions;
+using Rewiews.Application.TodoUserProfile.Commands.UserProfileCommands.DeleteUser;
 using Rewiews.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace Rewiews.Application.TodoUserProfile.Commands.UserProfileCommands.DeleteUser
+public class DeleteUserProfileCommandHandler : IRequestHandler<DeleteUserProfileCommand, string>
 {
-    public class DeleteUserProfileCommandHandler : IRequestHandler<DeleteUserProfileCommand, string>
+    private readonly IUserProfileRepository _userRepository;
+    private readonly ILogger<DeleteUserProfileCommandHandler> _logger;
+
+    public DeleteUserProfileCommandHandler(IUserProfileRepository userRepository, ILogger<DeleteUserProfileCommandHandler> logger)
     {
-        private readonly IUserProfileRepository _userRepository;
+        _userRepository = userRepository;
+        _logger = logger;
+    }
 
-        public DeleteUserProfileCommandHandler(IUserProfileRepository userRepository)
+    public async Task<string> Handle(DeleteUserProfileCommand request, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Deleting user profile Id: {Id}", request.Id);
+
+        var user = await _userRepository.GetByIdAsync(request.Id);
+        if (user == null)
         {
-            _userRepository = userRepository;
+            _logger.LogWarning("UserProfile Id: {Id} not found", request.Id);
+            throw new NotFoundException("UserProfile", request.Id);
         }
 
-        public async Task<string> Handle(DeleteUserProfileCommand request, CancellationToken cancellationToken)
-        {
-            var user = await _userRepository.GetByIdAsync(request.Id);
+        await _userRepository.DeleteAsync(request.Id);
+        _logger.LogInformation("UserProfile Id: {Id} deleted successfully", request.Id);
 
-            if (user == null)
-                throw new NotFoundException("UserProfile", request.Id);
-
-            await _userRepository.DeleteAsync(request.Id);
-
-            return $"UserProfile '{request.Id}' deleted successfully.";
-        }
+        return $"UserProfile '{request.Id}' deleted successfully.";
     }
 }

@@ -26,5 +26,6 @@ namespace Rewiews.Domain.Interfaces
                     string? sortBy = null,
                     bool sortDesc = false
                 );
+        Task<Product?> GetByNameAsync(string name);
     }
 }

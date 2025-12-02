@@ -1,4 +1,5 @@
 ﻿using Common.DTO_s;
+using Orders.Domain.Entity;
 
 namespace Orders.Bll.Interfaces
 {
@@ -9,5 +10,6 @@ namespace Orders.Bll.Interfaces
         Task AddAsync(OrderItemsDTO dto);
         Task UpdateAsync(OrderItemsDTO dto);
         Task DeleteAsync(int id);
+        Task<IEnumerable<OrderItemsDTO>> GetByOrderIdAsync(int orderId);
     }
 }

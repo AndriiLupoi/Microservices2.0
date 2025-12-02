@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Rewiews.Application.TodoProducts.Queries.GetTodoProducts;
 using Rewiews.Application.TodoReviews.Commands.ReviewsCommands.CreateReviews;
 using Rewiews.Application.TodoReviews.Commands.ReviewsCommands.DeleteReviews;
 using Rewiews.Application.TodoReviews.Commands.ReviewsCommands.UptadeReviews;
@@ -76,6 +77,17 @@ namespace Rewiews.API.Controllers
         {
             await _mediator.Send(new DeleteReviewCommand { Id = id });
             return NoContent();
+        }
+
+        [HttpGet("product/name/{name}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetProductIdByNameAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var result = await _mediator.Send(new GetProductByNameQuery(name), cancellationToken);
+            if (result == null)
+                return NotFound(new { message = $"Product with name '{name}' not found." });
+            return Ok(result);
         }
     }
 }

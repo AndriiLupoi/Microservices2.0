@@ -1,36 +1,38 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Rewiews.Application.Common.DTOs;
 using Rewiews.Application.Common.Exceptions;
 using Rewiews.Application.TodoUserProfile.UserQueries.GetUser;
 using Rewiews.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace Rewiews.Application.TodoUserProfile.UserQueries.GetUserHandler
+public class GetUserProfileByIdQueryHandler : IRequestHandler<GetUserProfileByIdQuery, UserProfileDto>
 {
-    public class GetUserProfileByIdQueryHandler : IRequestHandler<GetUserProfileByIdQuery, UserProfileDto>
+    private readonly IUserProfileRepository _repository;
+    private readonly IMapper _mapper;
+    private readonly ILogger<GetUserProfileByIdQueryHandler> _logger;
+
+    public GetUserProfileByIdQueryHandler(IUserProfileRepository repository, IMapper mapper, ILogger<GetUserProfileByIdQueryHandler> logger)
     {
-        private readonly IUserProfileRepository _repository;
-        private readonly IMapper _mapper;
+        _repository = repository;
+        _mapper = mapper;
+        _logger = logger;
+    }
 
-        public GetUserProfileByIdQueryHandler(IUserProfileRepository repository, IMapper mapper)
+    public async Task<UserProfileDto> Handle(GetUserProfileByIdQuery request, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Fetching user profile Id: {Id}", request.Id);
+
+        var user = await _repository.GetByIdAsync(request.Id);
+        if (user == null)
         {
-            _repository = repository;
-            _mapper = mapper;
+            _logger.LogWarning("UserProfile Id: {Id} not found", request.Id);
+            throw new NotFoundException("UserProfile", request.Id);
         }
 
-        public async Task<UserProfileDto> Handle(GetUserProfileByIdQuery request, CancellationToken cancellationToken)
-        {
-            var user = await _repository.GetByIdAsync(request.Id);
-
-            if (user == null)
-                throw new NotFoundException("UserProfile", request.Id);
-
-            return _mapper.Map<UserProfileDto>(user);
-        }
+        _logger.LogInformation("UserProfile Id: {Id} retrieved successfully", request.Id);
+        return _mapper.Map<UserProfileDto>(user);
     }
 }

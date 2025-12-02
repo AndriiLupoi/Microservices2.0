@@ -1,38 +1,44 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
+using Rewiews.Application.TodoUserProfile.Commands.UserProfileCommands.CreateUser;
 using Rewiews.Domain.Entities;
 using Rewiews.Domain.Interfaces;
 using Rewiews.Domain.ValueObjects;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Rewiews.Application.TodoUserProfile.Commands.UserProfileCommands.CreateUser
-{
-    public class CreateUserProfileCommandHandler
+public class CreateUserProfileCommandHandler
     : IRequestHandler<CreateUserProfileCommand, string>
+{
+    private readonly IUserProfileRepository _userRepository;
+    private readonly IMapper _mapper;
+    private readonly ILogger<CreateUserProfileCommandHandler> _logger;
+
+    public CreateUserProfileCommandHandler(
+        IUserProfileRepository userRepository,
+        IMapper mapper,
+        ILogger<CreateUserProfileCommandHandler> logger)
     {
-        private readonly IUserProfileRepository _userRepository;
-        private readonly IMapper _mapper;
+        _userRepository = userRepository;
+        _mapper = mapper;
+        _logger = logger;
+    }
 
-        public CreateUserProfileCommandHandler(
-            IUserProfileRepository userRepository,
-            IMapper mapper)
+    public async Task<string> Handle(CreateUserProfileCommand request, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Creating user profile for Email: {Email}", request.Email);
+
+        var userEmail = new Email(request.Email);
+        var user = new UserProfile
         {
-            _userRepository = userRepository;
-            _mapper = mapper;
-        }
+            Username = request.Username,
+            email = userEmail
+        };
 
-        public async Task<string> Handle(CreateUserProfileCommand request, CancellationToken cancellationToken)
-        {
-            var userEmail = new Email(request.Email);
+        await _userRepository.AddAsync(user);
 
-            var user = new UserProfile
-            {
-                Username = request.Username,
-                email = userEmail
-            };
-
-            await _userRepository.AddAsync(user);
-
-            return user.Id!;
-        }
+        _logger.LogInformation("UserProfile created successfully with Id: {Id}", user.Id);
+        return user.Id!;
     }
 }

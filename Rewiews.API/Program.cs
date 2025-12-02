@@ -6,11 +6,12 @@ using Rewiews.Api.Middlewares;
 using Rewiews.Application;
 using Rewiews.Infrastructure;
 using Rewiews.Infrastructure.Context;
-using ServiceDefaults;
+using LogConfig.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.Host.ConfigureSerilog();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
@@ -24,13 +25,11 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHealthChecks()
     .AddCheck<MongoDbHealthCheck>("mongodb");
 
-// 🔹 Application & Infrastructure DI
-builder.AddApplicationServices(); // Application: MediatR, AutoMapper, FluentValidation, Behaviors
-builder.Services.AddInfrastructure(builder.Configuration); // Infrastructure: Repos, MongoDB, IdGenerator
+builder.AddApplicationServices();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseServiceDefaults();
 
 using (var scope = app.Services.CreateScope())
 {

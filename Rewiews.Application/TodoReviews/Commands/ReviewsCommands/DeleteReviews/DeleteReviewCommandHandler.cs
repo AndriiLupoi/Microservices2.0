@@ -1,30 +1,36 @@
 ﻿using MediatR;
-using Rewiews.Application.Common.Exceptions;
+using Microsoft.Extensions.Logging;
+using Rewiews.Application.TodoReviews.Commands.ReviewsCommands.DeleteReviews;
 using Rewiews.Domain.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Rewiews.Application.TodoReviews.Commands.ReviewsCommands.DeleteReviews
+public class DeleteReviewCommandHandler : IRequestHandler<DeleteReviewCommand, string>
 {
-    public class DeleteReviewCommandHandler : IRequestHandler<DeleteReviewCommand, string>
+    private readonly IReviewRepository _reviewRepository;
+    private readonly ILogger<DeleteReviewCommandHandler> _logger;
+
+    public DeleteReviewCommandHandler(IReviewRepository reviewRepository, ILogger<DeleteReviewCommandHandler> logger)
     {
-        private readonly IReviewRepository _reviewRepository;
+        _reviewRepository = reviewRepository;
+        _logger = logger;
+    }
 
-        public DeleteReviewCommandHandler(IReviewRepository reviewRepository)
+    public async Task<string> Handle(DeleteReviewCommand request, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Deleting review Id: {Id} for ProductId: {ProductId}", request.Id, request.ProductId);
+
+        var review = await _reviewRepository.GetByIdAsync(request.Id);
+
+        if (review == null || review.ProductId != request.ProductId)
         {
-            _reviewRepository = reviewRepository;
+            _logger.LogWarning("Review Id: {Id} for ProductId: {ProductId} not found", request.Id, request.ProductId);
+            return $"Review '{request.Id}' not found.";
         }
 
-        public async Task<string> Handle(DeleteReviewCommand request, CancellationToken cancellationToken)
-        {
-            var review = await _reviewRepository.GetByIdAsync(request.Id);
+        await _reviewRepository.DeleteAsync(request.Id);
 
-            if (review == null || review.ProductId != request.ProductId)
-                return $"Review '{request.Id}' not found.";
-
-            await _reviewRepository.DeleteAsync(request.Id);
-
-            return $"Review '{request.Id}' deleted successfully.";
-        }
+        _logger.LogInformation("Review Id: {Id} deleted successfully", request.Id);
+        return $"Review '{request.Id}' deleted successfully.";
     }
 }

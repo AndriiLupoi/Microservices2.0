@@ -49,5 +49,11 @@ namespace Rewiews.Infrastructure.Repositories
             return count > 0;
         }
 
+        public async Task<Product?> GetByNameAsync(string name)
+        {
+            var filter = Builders<Product>.Filter.Eq(p => p.Name, name);
+            // Потрібно await, щоб отримати сам Product, а не Task<Product>
+            return await _collection.Find(filter).FirstOrDefaultAsync();
+        }
     }
 }

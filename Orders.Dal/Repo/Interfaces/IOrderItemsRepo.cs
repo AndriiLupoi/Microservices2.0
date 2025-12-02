@@ -9,5 +9,6 @@ namespace Orders.Dal.Repo.Interfaces
         Task<int> AddAsync(OrderItems item);
         Task<int> UpdateAsync(OrderItems item);
         Task<int> DeleteAsync(int id);
+        Task<IEnumerable<OrderItems>> GetByOrderIdAsync(int orderId);
     }
 }

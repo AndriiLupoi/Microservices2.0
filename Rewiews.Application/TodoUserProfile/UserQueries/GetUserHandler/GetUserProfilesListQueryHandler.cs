@@ -1,31 +1,34 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Rewiews.Application.Common.DTOs;
 using Rewiews.Application.TodoUserProfile.UserQueries.GetUser;
 using Rewiews.Domain.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace Rewiews.Application.TodoUserProfile.UserQueries.GetUserHandler
+public class GetUserProfilesListQueryHandler : IRequestHandler<GetUserProfilesListQuery, IReadOnlyCollection<UserProfileDto>>
 {
-    public class GetUserProfilesListQueryHandler : IRequestHandler<GetUserProfilesListQuery, IReadOnlyCollection<UserProfileDto>>
+    private readonly IUserProfileRepository _repository;
+    private readonly IMapper _mapper;
+    private readonly ILogger<GetUserProfilesListQueryHandler> _logger;
+
+    public GetUserProfilesListQueryHandler(IUserProfileRepository repository, IMapper mapper, ILogger<GetUserProfilesListQueryHandler> logger)
     {
-        private readonly IUserProfileRepository _repository;
-        private readonly IMapper _mapper;
+        _repository = repository;
+        _mapper = mapper;
+        _logger = logger;
+    }
 
-        public GetUserProfilesListQueryHandler(IUserProfileRepository repository, IMapper mapper)
-        {
-            _repository = repository;
-            _mapper = mapper;
-        }
+    public async Task<IReadOnlyCollection<UserProfileDto>> Handle(GetUserProfilesListQuery request, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Fetching all user profiles");
 
-        public async Task<IReadOnlyCollection<UserProfileDto>> Handle(GetUserProfilesListQuery request, CancellationToken cancellationToken)
-        {
-            var users = await _repository.ListAllAsync();
-            return _mapper.Map<IReadOnlyCollection<UserProfileDto>>(users);
-        }
+        var users = await _repository.ListAllAsync();
+        var dtos = _mapper.Map<IReadOnlyCollection<UserProfileDto>>(users);
+
+        _logger.LogInformation("Fetched {Count} user profiles", dtos.Count);
+        return dtos;
     }
 }

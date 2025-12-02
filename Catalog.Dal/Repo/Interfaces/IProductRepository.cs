@@ -9,6 +9,7 @@ namespace Catalog.Dal.Repo.Interfaces
 {
     public interface IProductRepository : IAsyncRepository<Product> 
     {
+        Task<Product?> GetByNameAsync(string name);
         IQueryable<Product> Query();
         
     }

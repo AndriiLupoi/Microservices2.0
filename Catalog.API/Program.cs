@@ -9,13 +9,14 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using ServiceDefaults;
+using LogConfig.Logging;
 
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.Host.ConfigureSerilog();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -62,7 +63,6 @@ builder.Services.AddDbContext<CatalogDbContext>(options =>
 
 var app = builder.Build();
 
-app.UseServiceDefaults();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 

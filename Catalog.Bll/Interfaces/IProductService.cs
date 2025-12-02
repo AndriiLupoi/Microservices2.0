@@ -20,5 +20,6 @@ namespace Catalog.Bll.Interfaces
             int? categoryId = null,
             string? sortBy = null,
             string sortDir = "asc");
+        Task<ProductDto> GetProductByNameAsync(string name);
     }
 }

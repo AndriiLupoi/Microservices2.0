@@ -1,32 +1,34 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Rewiews.Application.Common.DTOs;
 using Rewiews.Application.TodoReviews.ReviewsQueries.GetReviews;
 using Rewiews.Domain.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Rewiews.Application.TodoReviews.ReviewsQueries.GetReviewsHandler
+public class GetReviewsListQueryHandler : IRequestHandler<GetReviewsListQuery, IReadOnlyCollection<ReviewDto>>
 {
-    public class GetReviewsListQueryHandler : IRequestHandler<GetReviewsListQuery, IReadOnlyCollection<ReviewDto>>
+    private readonly IReviewRepository _repository;
+    private readonly IMapper _mapper;
+    private readonly ILogger<GetReviewsListQueryHandler> _logger;
+
+    public GetReviewsListQueryHandler(IReviewRepository repository, IMapper mapper, ILogger<GetReviewsListQueryHandler> logger)
     {
-        private readonly IReviewRepository _repository;
-        private readonly IMapper _mapper;
+        _repository = repository;
+        _mapper = mapper;
+        _logger = logger;
+    }
 
-        public GetReviewsListQueryHandler(IReviewRepository repository, IMapper mapper)
-        {
-            _repository = repository;
-            _mapper = mapper;
-        }
+    public async Task<IReadOnlyCollection<ReviewDto>> Handle(GetReviewsListQuery request, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Fetching reviews list for ProductId: {ProductId}", request.ProductId);
 
-        public async Task<IReadOnlyCollection<ReviewDto>> Handle(GetReviewsListQuery request, CancellationToken cancellationToken)
-        {
-            var reviews = await _repository.ListByProductAsync(request.ProductId);
-            return _mapper.Map<IReadOnlyCollection<ReviewDto>>(reviews);
+        var reviews = await _repository.ListByProductAsync(request.ProductId);
+        var dtos = _mapper.Map<IReadOnlyCollection<ReviewDto>>(reviews);
 
-        }
-
+        _logger.LogInformation("Fetched {Count} reviews for ProductId: {ProductId}", dtos.Count, request.ProductId);
+        return dtos;
     }
 }

@@ -5,7 +5,7 @@ using Orders.Bll.Interfaces;
 
 namespace Orders.Api.Controllers
 {
-    [Route("api/products")]
+    [Route("api/orders/products")]
     [ApiController]
     public class ProductsController : ControllerBase
     {

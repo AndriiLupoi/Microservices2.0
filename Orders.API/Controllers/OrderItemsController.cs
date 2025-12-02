@@ -133,5 +133,20 @@ namespace Orders.Api.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Get all order items by Order ID.
+        /// </summary>
+        [HttpGet("order/{orderId:int}")]
+        public async Task<ActionResult<IEnumerable<OrderItemsDTO>>> GetByOrderId(int orderId)
+        {
+            var items = await _service.GetByOrderIdAsync(orderId);
+
+            if (items == null || !items.Any())
+                return NotFound(new { message = $"No items found for order {orderId}" });
+
+            return Ok(items);
+        }
+
     }
 }

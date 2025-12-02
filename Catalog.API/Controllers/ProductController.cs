@@ -118,5 +118,17 @@ namespace Catalog.Api.Controllers
             var result = await _productService.GetPagedProductsAsync(page, pageSize, brandId, categoryId, sortBy, sortDir);
             return Ok(result);
         }
+
+        // Отримати продукт по Name
+        [HttpGet("name/{name}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetProductIdByNameAsync(string name)
+        {
+            var result = await _productService.GetProductByNameAsync(name);
+            if (result == null)
+                return NotFound(new { message = $"Product with name '{name}' not found." });
+            return Ok(result);
+        }
     }
 }
